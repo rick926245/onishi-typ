@@ -481,7 +481,8 @@ const targetJapanese = document.getElementById('target-japanese');
 const targetRomaji = document.getElementById('target-romaji');
 const onishiKeyboard = document.getElementById('onishi-keyboard');
 
-const inputModeToggle = document.getElementById('input-mode-toggle');
+const inputModeToggle = document.getElementById('input-mode-toggle'); // 念のため残すか、または完全に置き換え
+const layoutSelect = document.getElementById('layout-select');
 const timeSelect = document.getElementById('time-select');
 const modeSelect = document.getElementById('mode-select');
 
@@ -598,6 +599,11 @@ window.addEventListener('DOMContentLoaded', () => {
     // キーボードの物理打鍵ハンドラ
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
+
+    // 配列選択の変更イベント
+    if (layoutSelect) {
+        layoutSelect.addEventListener('change', generateKeyboard);
+    }
 });
 
 // --- UI操作 ---
@@ -663,19 +669,23 @@ function selectLesson(id) {
 // キーボードの生成
 function generateKeyboard() {
     onishiKeyboard.innerHTML = '';
+    const layout = layoutSelect ? layoutSelect.value : 'virtual-onishi';
+    const isQwertyMode = layout === 'qwerty';
+
     KEYBOARD_LAYOUT.forEach(row => {
         const rowDiv = document.createElement('div');
         rowDiv.className = 'key-row';
         row.forEach(keyInfo => {
-            // QWERTY文字に対応したIDを付与
             const keyId = `key-${keyInfo.qwerty}`;
-            
             let isHome = keyInfo.home ? 'home-pos' : '';
+            
+            let displayCharBig = isQwertyMode ? keyInfo.qwerty.toUpperCase() : keyInfo.onishi.toUpperCase();
+            let displayCharSmall = isQwertyMode ? '' : keyInfo.qwerty.toUpperCase();
             
             rowDiv.innerHTML += `
                 <div class="key ${isHome}" id="${keyId}" data-onishi="${keyInfo.onishi}" data-qwerty="${keyInfo.qwerty}" data-finger="${keyInfo.finger}">
-                    <span class="key-char-onishi">${keyInfo.onishi.toUpperCase()}</span>
-                    <span class="key-char-qwerty">${keyInfo.qwerty.toUpperCase()}</span>
+                    <span class="key-char-onishi">${displayCharBig}</span>
+                    <span class="key-char-qwerty">${displayCharSmall}</span>
                 </div>
             `;
         });
@@ -993,16 +1003,16 @@ function handleKeyDown(e) {
     
     let typedChar = e.key;
 
-    // 仮想大西配列モードがONの場合、QWERTY物理入力を大西仮想キーにマッピング
-    const virtualModeOn = inputModeToggle.checked;
-    if (virtualModeOn) {
+    // キー配列モードに応じて入力を処理
+    const layout = layoutSelect ? layoutSelect.value : 'virtual-onishi';
+    if (layout === 'virtual-onishi') {
         typedChar = QWERTY_TO_ONISHI[typedChar] || typedChar;
     }
 
     // QWERTY物理キーコードに対応するキーを沈めるアニメーション用
     const qwertyPhysicalKey = e.key.toLowerCase();
     let targetPhysicalId = `key-${qwertyPhysicalKey}`;
-    if (!virtualModeOn) {
+    if (layout === 'os-onishi') {
         const keyInfo = findKeyInfoByOnishi(typedChar);
         if (keyInfo) targetPhysicalId = `key-${keyInfo.qwerty}`;
     }
@@ -1099,8 +1109,10 @@ function updateHighlights() {
     const nextChar = displayRomaji[inputBuffer.length]?.toLowerCase();
     if (!nextChar) return;
 
-    // 入力文字に対応する大西キー情報を取得
-    const keyInfo = findKeyInfoByOnishi(nextChar);
+    // 配列モードに応じてキー情報を取得
+    const layout = layoutSelect ? layoutSelect.value : 'virtual-onishi';
+    const isQwertyMode = layout === 'qwerty';
+    const keyInfo = isQwertyMode ? findKeyInfoByQwerty(nextChar) : findKeyInfoByOnishi(nextChar);
     if (!keyInfo) return;
 
     // ハイライトするQWERTYキーのID
@@ -1125,6 +1137,24 @@ function updateHighlights() {
 }
 
 // --- ヘルパー関数 ---
+function findKeyInfoByQwerty(char) {
+    char = char.toLowerCase();
+    for (let r = 0; r < KEYBOARD_LAYOUT.length; r++) {
+        const row = KEYBOARD_LAYOUT[r];
+        for (let k = 0; k < row.length; k++) {
+            if (row[k].qwerty === char) {
+                return row[k];
+            }
+        }
+    }
+    // QWERTY固有の特殊記号対応
+    if (char === '-') return { qwerty: '-', finger: 'r5' };
+    if (char === ';') return { qwerty: ';', finger: 'r5' };
+    if (char === ',') return { qwerty: ',', finger: 'r3' };
+    if (char === '.') return { qwerty: '.', finger: 'r4' };
+    return null;
+}
+
 function findKeyInfoByOnishi(char) {
     char = char.toLowerCase();
     for (let r = 0; r < KEYBOARD_LAYOUT.length; r++) {
