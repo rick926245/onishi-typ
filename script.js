@@ -177,19 +177,43 @@ const LESSONS = [
     },
     {
         id: 5,
-        title: "レッスン 5: 総合練習（短文）",
-        desc: "これまでに学んだすべてのキーを使って、日本語の短い日常文をタイピングします。<br>両手交互打鍵の打ちやすさ、指への負担の少なさを実感してみましょう！",
+        title: "レッスン 5: 総合練習（日常会話）",
+        desc: "すべてのキーを使って、日常の挨拶や会話でよく使われるフレーズをタイピングします。<br>語彙は100種類の中からランダムに出題されます。",
         keys: "すべてのキー",
-        words: [
-            { jp: "おーにしはいれつ", ro: "o-nisihairetu" },
-            { jp: "こんにちは。", ro: "konnitiha." },
-            { jp: "ありがとう。", ro: "arigatou." },
-            { jp: "たっちたいぴんぐのれんしゅう。", ro: "tattitaipingunorensyuu." },
-            { jp: "きょうはいいおてんきですね。", ro: "kyouhaiiotenkidesune." },
-            { jp: "ごはんをたべます。", ro: "gohannotabemasu." },
-            { jp: "ぱそこんをつかう。", ro: "pasokonwocukau." },
-            { jp: "にほんごがすきです。", ro: "nihongogasukidesu." }
-        ]
+        category: "daily",
+        words: []
+    },
+    {
+        id: 6,
+        title: "レッスン 6: 総合練習（ことわざ・四字熟語）",
+        desc: "すべてのキーを使って、日本の有名なことわざや四字熟語をタイピングします。<br>言葉の意味を噛み締めながら打ってみましょう。",
+        keys: "すべてのキー",
+        category: "proverbs",
+        words: []
+    },
+    {
+        id: 7,
+        title: "レッスン 7: 総合練習（IT・ビジネス）",
+        desc: "すべてのキーを使って、パソコン用語やIT・プログラミング、ビジネスシーンで頻出するフレーズをタイピングします。",
+        keys: "すべてのキー",
+        category: "it_business",
+        words: []
+    },
+    {
+        id: 8,
+        title: "レッスン 8: 総合練習（都道府県・地理）",
+        desc: "すべてのキーを使って、日本全国47都道府県の名称や主要都市をタイピングします。",
+        keys: "すべてのキー",
+        category: "geography",
+        words: []
+    },
+    {
+        id: 9,
+        title: "レッスン 9: 総合練習（昔話・名作文学）",
+        desc: "すべてのキーを使って、「桃太郎」や「吾輩は猫である」、「走れメロス」などの有名な書き出しやフレーズをタイピングします。",
+        keys: "すべてのキー",
+        category: "literature",
+        words: []
     }
 ];
 
@@ -225,6 +249,20 @@ const ROMAJI_MAP = {
     'びゃ': ['bya'], 'びゅ': ['byu'], 'びょ': ['byo'],
     'ぴゃ': ['pya'], 'ぴゅ': ['pyu'], 'ぴょ': ['pyo'],
     
+    // 外来語用拗音
+    'うぇ': ['we'], 'うぃ': ['wi'], 'うぉ': ['wo'],
+    'ふぁ': ['fa'], 'ふぃ': ['fi'], 'ふぇ': ['fe'], 'ふぉ': ['fo'],
+    'でぃ': ['di', 'dhi'], 'でゅ': ['dyu', 'dhyu'],
+    'てぃ': ['ti', 'thi'], 'てゅ': ['tyu', 'thyu'],
+    'じぇ': ['je', 'zye'], 'ちぇ': ['ce', 'tye'], 'しぇ': ['se', 'sye'],
+    'つぁ': ['tsa'], 'つぃ': ['tsi'], 'つぇ': ['tse'], 'つぉ': ['tso'],
+    'うぁ': ['wa'],
+    'ゔ': ['vu'], 'ゔぁ': ['va'], 'ゔぃ': ['vi'], 'ゔぇ': ['ve'], 'ゔぉ': ['vo'],
+    
+    // 単体小書き文字 (フォールバック用)
+    'ぁ': ['la', 'xa'], 'ぃ': ['li', 'xi'], 'ぅ': ['lu', 'xu'], 'ぇ': ['le', 'xe'], 'ぉ': ['lo', 'xo'],
+    'ゃ': ['lya', 'xya'], 'ゅ': ['lyu', 'xyu'], 'ょ': ['lyo', 'xyo'],
+    
     // 記号・特殊音
     'っ': ['ltu', 'ltsu', 'xtu'],
     'ー': ['-'],
@@ -248,11 +286,23 @@ function getRomajiPaths(hiragana) {
                 candidates = ROMAJI_MAP[twoChars];
                 matchedLen = 2;
             } else if (hiragana[i] === 'っ') {
-                const nextChar = hiragana[i + 1];
-                const nextCandidates = ROMAJI_MAP[nextChar];
-                if (nextCandidates && nextCandidates.length > 0) {
-                    candidates = nextCandidates.map(c => c[0] + c);
-                    matchedLen = 2;
+                // 促音の次が2文字の拗音（例：っしゃ、っちゃ）の場合
+                if (i + 2 < hiragana.length) {
+                    const nextTwoChars = hiragana.substring(i + 1, i + 3);
+                    if (ROMAJI_MAP[nextTwoChars]) {
+                        const nextCandidates = ROMAJI_MAP[nextTwoChars];
+                        candidates = nextCandidates.map(c => c[0] + c);
+                        matchedLen = 3;
+                    }
+                }
+                // そうでなければ通常の1文字の促音
+                if (matchedLen === 0) {
+                    const nextChar = hiragana[i + 1];
+                    const nextCandidates = ROMAJI_MAP[nextChar];
+                    if (nextCandidates && nextCandidates.length > 0) {
+                        candidates = nextCandidates.map(c => c[0] + c);
+                        matchedLen = 2;
+                    }
                 }
             }
         }
@@ -262,6 +312,14 @@ function getRomajiPaths(hiragana) {
             const oneChar = hiragana[i];
             candidates = ROMAJI_MAP[oneChar] || [oneChar];
             matchedLen = 1;
+
+            // 「ん」の特別な処理：次の文字があ行・な行・や行の場合、'n'を除外して'nn'のみにする
+            if (oneChar === 'ん' && i + 1 < hiragana.length) {
+                const nextChar = hiragana[i + 1];
+                if (/[あいうえおなにぬねのやゆよぁぃぅぇぉゃゅょ]/.test(nextChar)) {
+                    candidates = ['nn'];
+                }
+            }
         }
         
         const nextPaths = [];
@@ -319,11 +377,68 @@ const onishiKeyboard = document.getElementById('onishi-keyboard');
 const inputModeToggle = document.getElementById('input-mode-toggle');
 const timeSelect = document.getElementById('time-select');
 
+// --- 辞書データ保持用 ---
+let wordsData = null;
+
+// フォールバック用の最小限の単語データ（CORSエラー等でJSONが読み込めない場合に使用）
+const FALLBACK_WORDS = {
+    daily: [
+        { jp: "おーにしはいれつ", ro: "o-nisihairetu" },
+        { jp: "こんにちは。", ro: "konnitiha." },
+        { jp: "ありがとう。", ro: "arigatou." },
+        { jp: "きょうはいいおてんきですね。", ro: "kyouhaiiotenkidesune." }
+    ],
+    proverbs: [
+        { jp: "いしのうえにもさんねん。", ro: "isinoueimosannen." },
+        { jp: "いそがばまわれ。", ro: "isogabamaware." }
+    ],
+    it_business: [
+        { jp: "たっちたいぴんぐのれんしゅう。", ro: "tattitaipingunorensyuu." },
+        { jp: "ぱそこんをつかう。", ro: "pasokonwocukau." }
+    ],
+    geography: [
+        { jp: "とうきょうと", ro: "toukyouto" },
+        { jp: "おおさかふ", ro: "oosakahou" }
+    ],
+    literature: [
+        { jp: "むかしむかし、あるところに。", ro: "mukasimukasi,arutokoroni." },
+        { jp: "わがはいはねこである。", ro: "wagahaihanecodearu." }
+    ]
+};
+
+// JSON データの非同期読み込み
+async function loadWordsData() {
+    try {
+        const response = await fetch('words.json');
+        wordsData = await response.json();
+        
+        // 各レッスンに単語データを流し込む
+        LESSONS.forEach(lesson => {
+            if (lesson.category && wordsData[lesson.category]) {
+                lesson.words = wordsData[lesson.category];
+            }
+        });
+    } catch (error) {
+        console.warn('辞書ファイルの読み込みに失敗したため、内蔵フォールバック辞書を使用します (CORS制限などの可能性があります):', error);
+        
+        // フォールバックデータを適用
+        LESSONS.forEach(lesson => {
+            if (lesson.category && FALLBACK_WORDS[lesson.category]) {
+                lesson.words = FALLBACK_WORDS[lesson.category];
+            }
+        });
+    }
+}
+
 // --- 初期化処理 ---
 window.addEventListener('DOMContentLoaded', () => {
-    generateLessonList();
     generateKeyboard();
-    selectLesson(1); // デフォルトでレッスン1を選択
+    
+    // 辞書ロード後にレッスンリストを生成
+    loadWordsData().then(() => {
+        generateLessonList();
+        selectLesson(1); // デフォルトでレッスン1を選択
+    });
 
     // イベントリスナー登録
     btnStart.addEventListener('click', startGame);
@@ -488,14 +603,18 @@ function finishGame() {
     // ランク判定
     let rank = 'C';
     let rankName = '大西配列のビギナー';
+
+    // 1分換算の正規化スコアでランク判定
+    const timeFactor = totalTime / 60;
+    const normalizedScore = score / timeFactor;
     
-    if (score >= 2000 && accuracy >= 95) {
+    if (normalizedScore >= 2000 && accuracy >= 95) {
         rank = 'S';
         rankName = '大西配列の神';
-    } else if (score >= 1200 && accuracy >= 92) {
+    } else if (normalizedScore >= 1200 && accuracy >= 92) {
         rank = 'A';
         rankName = '大西配列のマスター';
-    } else if (score >= 600 && accuracy >= 88) {
+    } else if (normalizedScore >= 600 && accuracy >= 88) {
         rank = 'B';
         rankName = '大西配列の修業中';
     }
