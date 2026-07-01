@@ -59,6 +59,26 @@ const QWERTY_TO_ONISHI = {
     '-': '-', '_': '-'
 };
 
+// --- 大西配列からQWERTY物理キーへの逆変換テーブル (自動生成) ---
+const ONISHI_TO_QWERTY = {};
+for (let key in QWERTY_TO_ONISHI) {
+    ONISHI_TO_QWERTY[QWERTY_TO_ONISHI[key]] = key;
+}
+
+// --- 仮想Eucalyn配列キー変換テーブル ---
+const QWERTY_TO_EUCALYN = {
+    'q': 'q', 'w': 'w', 'e': ',', 'r': '.', 't': 'p', 'y': 'f', 'u': 'm', 'i': 'g', 'o': 'y', 'p': 'b',
+    'a': 'a', 's': 'o', 'd': 'e', 'f': 'i', 'g': 'u', 'h': 'd', 'j': 'h', 'k': 't', 'l': 'n', ';': 's',
+    'z': 'z', 'x': 'x', 'c': 'c', 'v': 'v', 'b': ';', 'n': 'k', 'm': 'r', ',': 'l', '.': 'j', '/': '-',
+    'Q': 'q', 'W': 'w', 'E': ',', 'R': '.', 'T': 'p', 'Y': 'f', 'U': 'm', 'I': 'g', 'O': 'y', 'P': 'b',
+    'A': 'a', 'S': 'o', 'D': 'e', 'F': 'i', 'G': 'u', 'H': 'd', 'J': 'h', 'K': 't', 'L': 'n', ':': 's',
+    'Z': 'z', 'X': 'x', 'C': 'c', 'V': 'v', 'B': ';', 'N': 'k', 'M': 'r', '<': 'l', '>': 'j', '?': '-'
+};
+const EUCALYN_TO_QWERTY = {};
+for (let key in QWERTY_TO_EUCALYN) {
+    EUCALYN_TO_QWERTY[QWERTY_TO_EUCALYN[key]] = key;
+}
+
 // --- レッスン定義 ---
 const LESSONS = [
     {
@@ -458,6 +478,12 @@ let inputBuffer = "";
 let romajiPaths = [];
 let displayRomaji = "";
 
+// 同時押し・かな配列用の変数
+let pressedKeys = {};
+function isKanaMode(layout) {
+    return ['sim-nicola', 'os-nicola', 'sim-naginata', 'os-naginata', 'sim-shingeta', 'sim-asuka'].includes(layout);
+}
+
 // --- DOM 要素の取得 ---
 const lessonListContainer = document.getElementById('lesson-list');
 const startLessonTitle = document.getElementById('start-lesson-title');
@@ -670,27 +696,88 @@ function selectLesson(id) {
 function generateKeyboard() {
     onishiKeyboard.innerHTML = '';
     const layout = layoutSelect ? layoutSelect.value : 'virtual-onishi';
-    const isQwertyMode = layout === 'qwerty';
+    const isKana = isKanaMode(layout);
 
-    KEYBOARD_LAYOUT.forEach(row => {
-        const rowDiv = document.createElement('div');
-        rowDiv.className = 'key-row';
-        row.forEach(keyInfo => {
-            const keyId = `key-${keyInfo.qwerty}`;
-            let isHome = keyInfo.home ? 'home-pos' : '';
-            
-            let displayCharBig = isQwertyMode ? keyInfo.qwerty.toUpperCase() : keyInfo.onishi.toUpperCase();
-            let displayCharSmall = isQwertyMode ? '' : keyInfo.qwerty.toUpperCase();
-            
-            rowDiv.innerHTML += `
-                <div class="key ${isHome}" id="${keyId}" data-onishi="${keyInfo.onishi}" data-qwerty="${keyInfo.qwerty}" data-finger="${keyInfo.finger}">
-                    <span class="key-char-onishi">${displayCharBig}</span>
-                    <span class="key-char-qwerty">${displayCharSmall}</span>
-                </div>
-            `;
+    if (isKana) {
+        // --- かな系同時打鍵キーボードの生成 ---
+        const cleanId = layout.replace('sim-', '').replace('os-', '');
+        const kanaLayout = KANA_LAYOUTS[cleanId];
+        if (!kanaLayout) return;
+
+        // シフト状態の検出
+        const isLeftShiftActive = pressedKeys['IntlMuhenkan'] || pressedKeys['Lang2'] || pressedKeys['Tab'];
+        const isRightShiftActive = pressedKeys['IntlHenkan'] || pressedKeys['Lang1'] || pressedKeys['Space'];
+
+        kanaLayout.keys.forEach(row => {
+            const rowDiv = document.createElement('div');
+            rowDiv.className = 'key-row';
+            row.forEach(keyInfo => {
+                const keyId = `key-${keyInfo.qwerty}`;
+                let isHome = keyInfo.home ? 'home-pos' : '';
+                
+                // シフトキーが押されている間、そのマッピング文字を大きく中央に表示する
+                let displayCharBig = keyInfo.normal;
+                let activeClass = "";
+                
+                if (isLeftShiftActive) {
+                    displayCharBig = keyInfo.left;
+                    activeClass = "shift-left-active";
+                } else if (isRightShiftActive) {
+                    displayCharBig = keyInfo.right;
+                    activeClass = "shift-right-active";
+                }
+
+                // サブ文字表示（左シフト文字と右シフト文字を左右下に小さく表示）
+                const displayCharSmallLeft = keyInfo.left;
+                const displayCharSmallRight = keyInfo.right;
+
+                rowDiv.innerHTML += `
+                    <div class="key ${isHome} ${activeClass}" id="${keyId}" data-qwerty="${keyInfo.qwerty}" data-finger="${keyInfo.finger}">
+                        <span class="key-char-onishi">${displayCharBig}</span>
+                        <div class="key-kana-sub">
+                            <span class="sub-left">${displayCharSmallLeft}</span>
+                            <span class="sub-right">${displayCharSmallRight}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            onishiKeyboard.appendChild(rowDiv);
         });
-        onishiKeyboard.appendChild(rowDiv);
-    });
+    } else {
+        // --- アルファベット系キーボードの生成 ---
+        let cleanId = 'qwerty';
+        if (layout === 'virtual-onishi' || layout === 'os-onishi') {
+            cleanId = 'onishi';
+        } else if (layout === 'virtual-eucalyn' || layout === 'os-eucalyn') {
+            cleanId = 'eucalyn';
+        }
+        
+        const alphabetLayout = ALPHABET_LAYOUTS[cleanId];
+        if (!alphabetLayout) return;
+
+        // QWERTYガイドの表示判定
+        const isPracticeQwerty = (layout === 'qwerty' || layout === 'os-qwerty');
+
+        alphabetLayout.forEach(row => {
+            const rowDiv = document.createElement('div');
+            rowDiv.className = 'key-row';
+            row.forEach(keyInfo => {
+                const keyId = `key-${keyInfo.qwerty}`;
+                let isHome = keyInfo.home ? 'home-pos' : '';
+                
+                let displayCharBig = isPracticeQwerty ? keyInfo.qwerty.toUpperCase() : keyInfo.char.toUpperCase();
+                let displayCharSmall = isPracticeQwerty ? '' : keyInfo.qwerty.toUpperCase();
+                
+                rowDiv.innerHTML += `
+                    <div class="key ${isHome}" id="${keyId}" data-qwerty="${keyInfo.qwerty}" data-finger="${keyInfo.finger}">
+                        <span class="key-char-onishi">${displayCharBig}</span>
+                        <span class="key-char-qwerty">${displayCharSmall}</span>
+                    </div>
+                `;
+            });
+            onishiKeyboard.appendChild(rowDiv);
+        });
+    }
 }
 
 // --- タイピングゲーム制御 ---
@@ -758,10 +845,25 @@ function finishGame() {
 
     // ランク判定
     let rank = 'C';
-    const isQwerty = (layoutSelect ? layoutSelect.value : 'virtual-onishi') === 'qwerty';
-    let rankName = isQwerty ? 'タイピングのビギナー' : '大西配列 of ビギナー'; // '大西配列のビギナー'
-    // ※大西配列の日本語名と合わせるため、統一して '大西配列のビギナー' とします。
-    rankName = isQwerty ? 'タイピングのビギナー' : '大西配列のビギナー';
+    const layout = layoutSelect ? layoutSelect.value : 'virtual-onishi';
+    
+    // レイアウト名ごとの接頭辞
+    const LAYOUT_PREFIXES = {
+        'qwerty': 'QWERTY',
+        'os-qwerty': 'QWERTY',
+        'virtual-onishi': '大西配列',
+        'os-onishi': '大西配列',
+        'virtual-eucalyn': 'Eucalyn',
+        'os-eucalyn': 'Eucalyn',
+        'sim-nicola': '親指シフト',
+        'os-nicola': '親指シフト',
+        'sim-naginata': '薙刀式',
+        'os-naginata': '薙刀式',
+        'sim-shingeta': '新下駄配列',
+        'sim-asuka': '飛鳥配列'
+    };
+    const prefix = LAYOUT_PREFIXES[layout] || 'タイピング';
+    let rankName = `${prefix}のビギナー`;
 
     // 1分換算の正規化スコアでランク判定
     const timeFactor = totalTime / 60;
@@ -769,13 +871,13 @@ function finishGame() {
     
     if (normalizedScore >= 2000 && accuracy >= 95) {
         rank = 'S';
-        rankName = isQwerty ? 'タイピングの神' : '大西配列の神';
+        rankName = `${prefix}の神`;
     } else if (normalizedScore >= 1200 && accuracy >= 92) {
         rank = 'A';
-        rankName = isQwerty ? 'タイピングのマスター' : '大西配列のマスター';
+        rankName = `${prefix}のマスター`;
     } else if (normalizedScore >= 600 && accuracy >= 88) {
         rank = 'B';
-        rankName = isQwerty ? 'タイピングの修業中' : '大西配列の修業中';
+        rankName = `${prefix}の修業中`;
     }
 
     // 結果画面UIの更新
@@ -793,6 +895,7 @@ function finishGame() {
         lessonId: activeLesson.id,
         lessonTitle: activeLesson.title,
         timerMode: timerMode,
+        layout: layout, // 配列モードを追加
         score: score,
         kpm: kpm,
         accuracy: parseFloat(accuracy),
@@ -801,10 +904,11 @@ function finishGame() {
 
     let records = JSON.parse(localStorage.getItem('onishi_typing_records')) || [];
     
-    // 同一レッスン・同一モードの最高スコアを事前に計算
+    // 同一レッスン・同一モード・同一配列設定の最高スコアを事前に計算
     const previousModeRecords = records.filter(r => 
         r.lessonId === activeLesson.id && 
-        r.timerMode === timerMode
+        r.timerMode === timerMode &&
+        (r.layout === layout || (!r.layout && layout === 'virtual-onishi'))
     );
     const previousBest = previousModeRecords.length > 0 
         ? Math.max(...previousModeRecords.map(r => r.score)) 
@@ -836,12 +940,27 @@ function finishGame() {
         'word-reppu': '烈風（れっぷう）',
         'word-raiko': '雷光（らいこう）'
     };
-    rankingModeName.textContent = `${activeLesson.title} [${MODE_NAMES[timerMode] || timerMode}]`;
+    const LAYOUT_NAMES = {
+        'virtual-onishi': '大西配列(仮想)',
+        'os-onishi': '大西配列(OS)',
+        'qwerty': '普通配列(QWERTY)',
+        'os-qwerty': '普通配列(OS大西)',
+        'virtual-eucalyn': 'Eucalyn(仮想)',
+        'os-eucalyn': 'Eucalyn(OS)',
+        'sim-nicola': '親指シフト(仮想)',
+        'os-nicola': '親指シフト(OS)',
+        'sim-naginata': '薙刀式(仮想)',
+        'os-naginata': '薙刀式(OS)',
+        'sim-shingeta': '新下駄配列(仮想)',
+        'sim-asuka': '飛鳥配列(仮想)'
+    };
+    rankingModeName.textContent = `${activeLesson.title} [${LAYOUT_NAMES[layout] || layout} / ${MODE_NAMES[timerMode] || timerMode}]`;
 
-    // 同一レッスン・モードの全記録を抽出し、スコア順にソートしてTOP 5を作成
+    // 同一レッスン・モード・配列の全記録を抽出し、スコア順にソートしてTOP 5を作成
     const currentModeRecords = records.filter(r => 
         r.lessonId === activeLesson.id && 
-        r.timerMode === timerMode
+        r.timerMode === timerMode &&
+        (r.layout === layout || (!r.layout && layout === 'virtual-onishi'))
     );
     const top5 = currentModeRecords.sort((a, b) => b.score - a.score).slice(0, 5);
     
@@ -905,24 +1024,33 @@ function setupNextWord() {
             baseBuffer = 0.4;
         }
 
-        wordTimeLimit = (displayRomaji.length * timePerChar) + baseBuffer;
+        const layout = layoutSelect ? layoutSelect.value : 'virtual-onishi';
+        const isKana = isKanaMode(layout);
+        const charLen = isKana ? word.jp.length : displayRomaji.length;
+
+        wordTimeLimit = (charLen * timePerChar) + baseBuffer;
         wordTimeLeft = wordTimeLimit;
         wordProgressBar.style.width = '100%';
     }
     
-    // ローマ字を分割して span 化して描画
+    // ローマ字/かなを分割して span 化して描画
     renderRomajiSpans();
     updateHighlights();
 }
 
-// ローマ字表示の再描画
+// ローマ字・かな表示の再描画
 function renderRomajiSpans() {
     targetRomaji.innerHTML = '';
+    const layout = layoutSelect ? layoutSelect.value : 'virtual-onishi';
+    const isKana = isKanaMode(layout);
+    
+    const word = targetWords[currentWordIndex];
+    const displayText = isKana ? word.jp : displayRomaji;
     const len = inputBuffer.length;
     
-    for (let i = 0; i < displayRomaji.length; i++) {
+    for (let i = 0; i < displayText.length; i++) {
         const span = document.createElement('span');
-        span.textContent = displayRomaji[i];
+        span.textContent = displayText[i];
         
         if (i < len) {
             span.className = 'char-typed';
@@ -933,6 +1061,11 @@ function renderRomajiSpans() {
         }
         
         targetRomaji.appendChild(span);
+    }
+
+    // かなモード時の補助情報として、次に打つキーの組み合わせをテキスト表示
+    if (isKana && len < displayText.length) {
+        showKanaKeyGuide(displayText[len]);
     }
 }
 
@@ -969,8 +1102,11 @@ function updateTimer() {
         
         // 1文制限時間切れの場合の処理
         if (wordTimeLeft <= 0) {
-            // スキップされた文字数をミスとしてカウントし、減点する
-            const unescapedLen = displayRomaji.length - inputBuffer.length;
+            const layout = layoutSelect ? layoutSelect.value : 'virtual-onishi';
+            const isKana = isKanaMode(layout);
+            const word = targetWords[currentWordIndex];
+            const targetLen = isKana ? word.jp.length : displayRomaji.length;
+            const unescapedLen = targetLen - inputBuffer.length;
             incorrectTypes += Math.max(1, unescapedLen);
             score = Math.max(0, score - 5); // 1文スキップのペナルティ
 
@@ -992,6 +1128,15 @@ function updateTimer() {
 function handleKeyDown(e) {
     if (!isPlaying) return;
     
+    // pressedKeys に登録
+    pressedKeys[e.code] = Date.now();
+
+    const layout = layoutSelect ? layoutSelect.value : 'virtual-onishi';
+    const isThumbKey = ['IntlMuhenkan', 'Lang2', 'Tab', 'IntlHenkan', 'Lang1', 'Space'].includes(e.code);
+    if (isThumbKey && isKanaMode(layout)) {
+        generateKeyboard();
+    }
+
     // 特殊制御キーは無視
     if (e.ctrlKey || e.altKey || e.metaKey) return;
     if (e.key === 'Escape') {
@@ -999,24 +1144,31 @@ function handleKeyDown(e) {
         return;
     }
 
-    // 対象の入力キーを取得 (1文字のみに絞る)
+    // 対象の入力キーを取得 (1文字のみに絞る、ただしかなモード時のスペースキーはシフト専用とするため文字入力としては除外)
     if (e.key.length !== 1) return;
+    if (e.key === ' ' && isKanaMode(layout)) return;
 
     e.preventDefault(); // デフォルトブラウザキーイベント無効化
     
     let typedChar = e.key;
 
     // キー配列モードに応じて入力を処理
-    const layout = layoutSelect ? layoutSelect.value : 'virtual-onishi';
     if (layout === 'virtual-onishi') {
         typedChar = QWERTY_TO_ONISHI[typedChar] || typedChar;
+    } else if (layout === 'os-qwerty') {
+        typedChar = ONISHI_TO_QWERTY[typedChar] || typedChar;
+    } else if (layout === 'virtual-eucalyn') {
+        typedChar = QWERTY_TO_EUCALYN[typedChar] || typedChar;
+    } else if (layout.startsWith('sim-') && isKanaMode(layout)) {
+        typedChar = getTypedKana(e, layout);
     }
 
     // QWERTY物理キーコードに対応するキーを沈めるアニメーション用
     const qwertyPhysicalKey = e.key.toLowerCase();
     let targetPhysicalId = `key-${qwertyPhysicalKey}`;
-    if (layout === 'os-onishi') {
-        const keyInfo = findKeyInfoByOnishi(typedChar);
+    const isPcOnishi = (layout === 'os-onishi' || layout === 'os-qwerty' || layout === 'os-eucalyn' || layout === 'os-nicola' || layout === 'os-naginata');
+    if (isPcOnishi) {
+        const keyInfo = findKeyInfoByOnishi(e.key) || findKeyInfoByKana(e.key, layout);
         if (keyInfo) targetPhysicalId = `key-${keyInfo.qwerty}`;
     }
     
@@ -1025,48 +1177,91 @@ function handleKeyDown(e) {
         keyEl.classList.add('pressed');
     }
 
-    // 現在打つべきローマ字とパターンを取得
+    // 現在打つべきローマ字/かなとパターンを取得
     const word = targetWords[currentWordIndex];
-    const testBuffer = inputBuffer + typedChar.toLowerCase();
-    
-    // testBuffer がいずれかの romajiPaths のプレフィックスになっているかチェック
-    const matchedPath = romajiPaths.find(path => path.toLowerCase().startsWith(testBuffer));
-    
-    if (matchedPath) {
-        // 正解
-        correctTypes++;
-        score += 10;
-        inputBuffer = testBuffer;
+    const isKana = isKanaMode(layout);
+
+    if (isKana) {
+        // --- かな配列のタイピング判定 ---
+        if (!typedChar) return;
         
-        // もし現在表示中の displayRomaji が testBuffer に一致しなくなったら、一致する他の候補に切り替える
-        if (!displayRomaji.toLowerCase().startsWith(inputBuffer.toLowerCase())) {
-            displayRomaji = matchedPath;
-        }
+        const targetChar = word.jp[inputBuffer.length];
         
-        // 単語クリア判定
-        if (inputBuffer.length >= displayRomaji.length) {
-            currentWordIndex++;
-            renderRomajiSpans(); // 完了状態を描画
-            setTimeout(setupNextWord, 50);
+        if (typedChar === targetChar) {
+            // 正解
+            correctTypes++;
+            score += 10;
+            inputBuffer = inputBuffer + typedChar;
+            
+            // 単語クリア判定
+            if (inputBuffer.length >= word.jp.length) {
+                currentWordIndex++;
+                renderRomajiSpans(); // 完了状態を描画
+                setTimeout(setupNextWord, 50);
+            } else {
+                renderRomajiSpans();
+                updateHighlights();
+            }
         } else {
-            renderRomajiSpans();
-            updateHighlights();
+            // ミス
+            incorrectTypes++;
+            score = Math.max(0, score - 5); // 減点
+            
+            // 現在の入力箇所をエラー表示にする
+            const spans = targetRomaji.querySelectorAll('span');
+            const currentSpan = spans[inputBuffer.length];
+            if (currentSpan) {
+                currentSpan.className = 'char-current char-error';
+                setTimeout(() => {
+                    if (isPlaying && currentSpan && inputBuffer.length < word.jp.length) {
+                        currentSpan.classList.remove('char-error');
+                    }
+                }, 150);
+            }
         }
     } else {
-        // ミス
-        incorrectTypes++;
-        score = Math.max(0, score - 5); // 減点
+        // --- ローマ字配列のタイピング判定 ---
+        const testBuffer = inputBuffer + typedChar.toLowerCase();
         
-        // 現在の入力箇所をエラー表示にする
-        const spans = targetRomaji.querySelectorAll('span');
-        const currentSpan = spans[inputBuffer.length];
-        if (currentSpan) {
-            currentSpan.className = 'char-current char-error';
-            setTimeout(() => {
-                if (isPlaying && currentSpan && inputBuffer.length < displayRomaji.length) {
-                    currentSpan.classList.remove('char-error');
-                }
-            }, 150);
+        // testBuffer がいずれかの romajiPaths のプレフィックスになっているかチェック
+        const matchedPath = romajiPaths.find(path => path.toLowerCase().startsWith(testBuffer));
+        
+        if (matchedPath) {
+            // 正解
+            correctTypes++;
+            score += 10;
+            inputBuffer = testBuffer;
+            
+            // もし現在表示中の displayRomaji が testBuffer に一致しなくなったら、一致する他の候補に切り替える
+            if (!displayRomaji.toLowerCase().startsWith(inputBuffer.toLowerCase())) {
+                displayRomaji = matchedPath;
+            }
+            
+            // 単語クリア判定
+            if (inputBuffer.length >= displayRomaji.length) {
+                currentWordIndex++;
+                renderRomajiSpans(); // 完了状態を描画
+                setTimeout(setupNextWord, 50);
+            } else {
+                renderRomajiSpans();
+                updateHighlights();
+            }
+        } else {
+            // ミス
+            incorrectTypes++;
+            score = Math.max(0, score - 5); // 減点
+            
+            // 現在의入力箇所をエラー表示にする
+            const spans = targetRomaji.querySelectorAll('span');
+            const currentSpan = spans[inputBuffer.length];
+            if (currentSpan) {
+                currentSpan.className = 'char-current char-error';
+                setTimeout(() => {
+                    if (isPlaying && currentSpan && inputBuffer.length < displayRomaji.length) {
+                        currentSpan.classList.remove('char-error');
+                    }
+                }, 150);
+            }
         }
     }
 
@@ -1076,10 +1271,19 @@ function handleKeyDown(e) {
 function handleKeyUp(e) {
     if (!isPlaying) return;
     
+    // pressedKeys からキーを削除
+    delete pressedKeys[e.code];
+
+    const layout = layoutSelect ? layoutSelect.value : 'virtual-onishi';
+    const isThumbKey = ['IntlMuhenkan', 'Lang2', 'Tab', 'IntlHenkan', 'Lang1', 'Space'].includes(e.code);
+    if (isThumbKey && isKanaMode(layout)) {
+        generateKeyboard();
+    }
+    
     // pressed クラスを除去
-    const virtualModeOn = inputModeToggle.checked;
+    const isPcOnishi = (layout === 'os-onishi' || layout === 'os-qwerty' || layout === 'os-eucalyn' || layout === 'os-nicola' || layout === 'os-naginata');
     let targetPhysicalId = `key-${e.key.toLowerCase()}`;
-    if (!virtualModeOn) {
+    if (isPcOnishi) {
         const keyInfo = findKeyInfoByOnishi(e.key);
         if (keyInfo) targetPhysicalId = `key-${keyInfo.qwerty}`;
     }
@@ -1108,14 +1312,30 @@ function updateHighlights() {
 
     if (!isPlaying) return;
 
-    // 次に入力すべき文字を取得
-    const nextChar = displayRomaji[inputBuffer.length]?.toLowerCase();
-    if (!nextChar) return;
-
-    // 配列モードに応じてキー情報を取得
     const layout = layoutSelect ? layoutSelect.value : 'virtual-onishi';
-    const isQwertyMode = layout === 'qwerty';
-    const keyInfo = isQwertyMode ? findKeyInfoByQwerty(nextChar) : findKeyInfoByOnishi(nextChar);
+    const isKana = isKanaMode(layout);
+    const word = targetWords[currentWordIndex];
+
+    let keyInfo = null;
+
+    if (isKana) {
+        // --- かな配列のガイド ---
+        const nextChar = word.jp[inputBuffer.length];
+        if (!nextChar) return;
+        keyInfo = findKeyInfoByKana(nextChar, layout);
+    } else {
+        // --- アルファベット配列のガイド ---
+        const nextChar = displayRomaji[inputBuffer.length]?.toLowerCase();
+        if (!nextChar) return;
+
+        const isPracticeQwerty = (layout === 'qwerty' || layout === 'os-qwerty');
+        if (isPracticeQwerty) {
+            keyInfo = findKeyInfoByQwerty(nextChar);
+        } else {
+            keyInfo = findKeyInfoByAlphabet(nextChar, layout);
+        }
+    }
+
     if (!keyInfo) return;
 
     // ハイライトするQWERTYキーのID
@@ -1180,4 +1400,121 @@ function shuffleArray(array) {
         const j = Math.floor(Math.random() * (i + 1));
         [array[i], array[j]] = [array[j], array[i]];
     }
+}
+
+// --- かな同時打鍵シミュレータ用ヘルパー関数 ---
+function getTypedKana(e, layoutId) {
+    const cleanId = layoutId.replace('sim-', '').replace('os-', '');
+    const layout = KANA_LAYOUTS[cleanId];
+    if (!layout) return null;
+
+    const qwertyKey = e.key.toLowerCase();
+    
+    // QWERTY物理キー情報から該当キーを探す
+    let targetKeyInfo = null;
+    for (let r = 0; r < layout.keys.length; r++) {
+        const row = layout.keys[r];
+        const found = row.find(k => k.qwerty === qwertyKey);
+        if (found) {
+            targetKeyInfo = found;
+            break;
+        }
+    }
+    if (!targetKeyInfo) return null;
+
+    // シフトキーの状態をチェック
+    // 左親指キー: IntlMuhenkan (Win無変換), Lang2 (Mac英数), Tab (代替)
+    const isLeftShiftActive = pressedKeys['IntlMuhenkan'] || pressedKeys['Lang2'] || pressedKeys['Tab'];
+    
+    // 右親指キー: IntlHenkan (Win変換), Lang1 (Macかな), Space (スペース、薙刀式などで多用)
+    const isRightShiftActive = pressedKeys['IntlHenkan'] || pressedKeys['Lang1'] || pressedKeys['Space'];
+
+    if (isLeftShiftActive) {
+        return targetKeyInfo.left;
+    } else if (isRightShiftActive) {
+        return targetKeyInfo.right;
+    } else {
+        return targetKeyInfo.normal;
+    }
+}
+
+function findKeyInfoByKana(char, layoutId) {
+    const cleanId = layoutId.replace('os-', '').replace('sim-', '');
+    const layout = KANA_LAYOUTS[cleanId];
+    if (!layout) return null;
+
+    for (let r = 0; r < layout.keys.length; r++) {
+        const row = layout.keys[r];
+        for (let k = 0; k < row.length; k++) {
+            const keyInfo = row[k];
+            if (keyInfo.normal === char || keyInfo.left === char || keyInfo.right === char) {
+                return keyInfo;
+            }
+        }
+    }
+    return null;
+}
+
+function showKanaKeyGuide(kanaChar) {
+    if (!kanaChar) return;
+    
+    // ガイド情報の削除（既存のツールチップがあれば消す）
+    const oldTooltip = targetRomaji.querySelector('.kana-guide-tooltip');
+    if (oldTooltip) oldTooltip.remove();
+
+    const layout = layoutSelect ? layoutSelect.value : 'virtual-onishi';
+    const guideText = getKanaKeyGuideText(layout, kanaChar);
+    
+    const guideDiv = document.createElement('div');
+    guideDiv.className = 'kana-guide-tooltip';
+    guideDiv.textContent = `ガイド: ${guideText}`;
+    targetRomaji.appendChild(guideDiv);
+}
+
+function getKanaKeyGuideText(layoutId, char) {
+    if (!char) return "";
+    const cleanId = layoutId.replace('sim-', '').replace('os-', '');
+    const layout = KANA_LAYOUTS[cleanId];
+    if (!layout) return "";
+
+    for (let r = 0; r < layout.keys.length; r++) {
+        const row = layout.keys[r];
+        for (let k = 0; k < row.length; k++) {
+            const keyInfo = row[k];
+            if (keyInfo.normal === char) {
+                return `[${keyInfo.qwerty.toUpperCase()}] キー`;
+            } else if (keyInfo.left === char) {
+                return `[無変換/英数] ＋ [${keyInfo.qwerty.toUpperCase()}]`;
+            } else if (keyInfo.right === char) {
+                const shiftKeyName = (cleanId === 'naginata') ? 'スペース' : '変換/かな';
+                return `[${shiftKeyName}] ＋ [${keyInfo.qwerty.toUpperCase()}]`;
+            }
+        }
+    }
+    return "定義なし";
+}
+
+function findKeyInfoByAlphabet(char, layoutId) {
+    char = char.toLowerCase();
+    let cleanId = 'qwerty';
+    if (layoutId.includes('onishi')) cleanId = 'onishi';
+    else if (layoutId.includes('eucalyn')) cleanId = 'eucalyn';
+    
+    const layout = ALPHABET_LAYOUTS[cleanId];
+    if (!layout) return null;
+
+    for (let r = 0; r < layout.length; r++) {
+        const row = layout[r];
+        for (let k = 0; k < row.length; k++) {
+            if (row[k].char === char) {
+                return row[k];
+            }
+        }
+    }
+    // 特殊記号の対応 (QWERTYでの位置)
+    if (char === '-') return { qwerty: '-', finger: 'r5' };
+    if (char === ';') return { qwerty: ';', finger: 'r5' };
+    if (char === ',') return { qwerty: ',', finger: 'r3' };
+    if (char === '.') return { qwerty: '.', finger: 'r4' };
+    return null;
 }

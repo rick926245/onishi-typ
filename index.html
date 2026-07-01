@@ -25,11 +25,20 @@
             <div class="header-controls">
                 <!-- キー配列選択 -->
                 <div class="control-group">
-                    <label for="layout-select" class="control-label">配列</label>
+                    <label for="layout-select" class="control-label">配列モード</label>
                     <select id="layout-select" class="custom-select">
-                        <option value="virtual-onishi">仮想大西</option>
-                        <option value="qwerty">普通の配列 (QWERTY)</option>
-                        <option value="os-onishi">OS設定大西</option>
+                        <option value="virtual-onishi">大西配列の練習（PC設定: QWERTY）</option>
+                        <option value="os-onishi">大西配列の練習（PC設定: 大西配列）</option>
+                        <option value="qwerty">普通の配列の練習（PC設定: QWERTY）</option>
+                        <option value="os-qwerty">普通の配列の練習（PC設定: 大西配列）</option>
+                        <option value="virtual-eucalyn">Eucalyn配列の練習（PC設定: QWERTY）</option>
+                        <option value="os-eucalyn">Eucalyn配列の練習（PC設定: 大西配列）</option>
+                        <option value="sim-nicola">親指シフトの練習（仮想シミュレータ）</option>
+                        <option value="os-nicola">親指シフトの練習（OS設定）</option>
+                        <option value="sim-naginata">薙刀式の練習（仮想シミュレータ）</option>
+                        <option value="os-naginata">薙刀式の練習（OS設定）</option>
+                        <option value="sim-shingeta">新下駄配列の練習（仮想シミュレータ）</option>
+                        <option value="sim-asuka">飛鳥配列の練習（仮想シミュレータ）</option>
                     </select>
                 </div>
 
@@ -248,6 +257,7 @@
         </footer>
     </div>
 
+    <script src="layouts.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

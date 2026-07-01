@@ -1009,3 +1009,61 @@ a:hover {
         box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
     }
 }
+
+/* --- かな同時打鍵配列用のキートップ追加スタイル --- */
+.key-kana-sub {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    position: absolute;
+    bottom: 2px;
+    padding: 0 4px;
+    font-size: 9px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    opacity: 0.55;
+    pointer-events: none;
+}
+
+.sub-left {
+    text-align: left;
+}
+
+.sub-right {
+    text-align: right;
+}
+
+/* シフトキー押下時のキートップ強調表示 */
+.key.shift-left-active {
+    background: rgba(0, 229, 255, 0.12) !important;
+    border-color: var(--neon-blue) !important;
+    box-shadow: 0 0 12px rgba(0, 229, 255, 0.25) !important;
+}
+
+.key.shift-right-active {
+    background: rgba(189, 0, 255, 0.12) !important;
+    border-color: var(--neon-purple) !important;
+    box-shadow: 0 0 12px rgba(189, 0, 255, 0.25) !important;
+}
+
+/* --- かな入力時のキーガイドツールチップ --- */
+.kana-guide-tooltip {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--neon-cyan);
+    text-shadow: 0 0 10px rgba(0, 240, 255, 0.4);
+    margin-top: 15px;
+    background: rgba(0, 240, 255, 0.05);
+    border: 1px solid rgba(0, 240, 255, 0.15);
+    border-radius: 8px;
+    padding: 8px 16px;
+    display: inline-block;
+    letter-spacing: 0.5px;
+    animation: guideFadeIn 0.3s ease-out;
+}
+
+@keyframes guideFadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
