@@ -90,7 +90,43 @@ const LESSONS = [
             { jp: "さんねん", ro: "sannen" },
             { jp: "ねっと", ro: "netto" },
             { jp: "そせい", ro: "sosei" },
-            { jp: "しせい", ro: "sisei" }
+            { jp: "しせい", ro: "sisei" },
+            { jp: "その", ro: "sono" },
+            { jp: "あの", ro: "ano" },
+            { jp: "たい", ro: "tai" },
+            { jp: "てんねん", ro: "tennen" },
+            { jp: "ねんね", ro: "nenne" },
+            { jp: "おそい", ro: "osoi" },
+            { jp: "おせち", ro: "oseti" },
+            { jp: "さとし", ro: "satosi" },
+            { jp: "ちとせ", ro: "titose" },
+            { jp: "とち", ro: "toti" },
+            { jp: "なし", ro: "nasi" },
+            { jp: "にし", ro: "nisi" },
+            { jp: "にせ", ro: "nise" },
+            { jp: "のせ", ro: "nose" },
+            { jp: "したて", ro: "sitate" },
+            { jp: "とし", ro: "tosi" },
+            { jp: "ひ", ro: "hi" },
+            { jp: "はて", ro: "hate" },
+            { jp: "ひと", ro: "hito" },
+            { jp: "ほし", ro: "hosi" },
+            { jp: "へそ", ro: "heso" },
+            { jp: "あはは", ro: "ahaha" },
+            { jp: "はし", ro: "hasi" },
+            { jp: "ひさし", ro: "hisasi" },
+            { jp: "ひねて", ro: "hinete" },
+            { jp: "ねね", ro: "nene" },
+            { jp: "あし", ro: "asi" },
+            { jp: "いし", ro: "isi" },
+            { jp: "てんてん", ro: "tenten" },
+            { jp: "さん", ro: "san" },
+            { jp: "しん", ro: "sin" },
+            { jp: "はん", ro: "han" },
+            { jp: "せん", ro: "sen" },
+            { jp: "てんし", ro: "tensi" },
+            { jp: "はんしん", ro: "hansin" },
+            { jp: "てんせん", ro: "tensen" }
         ]
     },
     {
@@ -116,7 +152,54 @@ const LESSONS = [
             { jp: "けいこ", ro: "keiko" },
             { jp: "こうねん", ro: "kounen" },
             { jp: "きかん", ro: "kikan" },
-            { jp: "かんこく", ro: "kankoku" }
+            { jp: "かんこく", ro: "kankoku" },
+            { jp: "かう", ro: "kau" },
+            { jp: "かく", ro: "kaku" },
+            { jp: "いけ", ro: "ike" },
+            { jp: "こえ", ro: "koe" },
+            { jp: "くうき", ro: "kuuki" },
+            { jp: "けこん", ro: "kekon" },
+            { jp: "かん", ro: "kan" },
+            { jp: "こん", ro: "kon" },
+            { jp: "くん", ro: "kun" },
+            { jp: "けん", ro: "ken" },
+            { jp: "すう", ro: "suu" },
+            { jp: "すね", ro: "sune" },
+            { jp: "すそ", ro: "suso" },
+            { jp: "すし", ro: "susi" },
+            { jp: "つち", ro: "tuti" },
+            { jp: "てつ", ro: "tetu" },
+            { jp: "いぬ", ro: "inu" },
+            { jp: "ぬの", ro: "nuno" },
+            { jp: "ねつ", ro: "netu" },
+            { jp: "ぬし", ro: "nusi" },
+            { jp: "うそ", ro: "uso" },
+            { jp: "うし", ro: "usi" },
+            { jp: "うち", ro: "uti" },
+            { jp: "うね", ro: "une" },
+            { jp: "あく", ro: "aku" },
+            { jp: "いか", ro: "ika" },
+            { jp: "おか", ro: "oka" },
+            { jp: "かお", ro: "kao" },
+            { jp: "かつ", ro: "katu" },
+            { jp: "きた", ro: "kita" },
+            { jp: "けさ", ro: "kesa" },
+            { jp: "こて", ro: "kote" },
+            { jp: "こと", ro: "koto" },
+            { jp: "しき", ro: "siki" },
+            { jp: "せき", ro: "seki" },
+            { jp: "そこ", ro: "soko" },
+            { jp: "つき", ro: "tuki" },
+            { jp: "てき", ro: "teki" },
+            { jp: "とき", ro: "toki" },
+            { jp: "ぬけ", ro: "nuke" },
+            { jp: "のこ", ro: "noko" },
+            { jp: "はく", ro: "haku" },
+            { jp: "ひく", ro: "hiku" },
+            { jp: "ふく", ro: "huku" },
+            { jp: "ほく", ro: "hoku" },
+            { jp: "ほう", ro: "hou" },
+            { jp: "ふね", ro: "hune" }
         ]
     },
     {
@@ -131,7 +214,7 @@ const LESSONS = [
             { jp: "らりるれろ", ro: "rarirurero" },
             { jp: "ふるい", ro: "furui" },
             { jp: "よわい", ro: "yowai" },
-            { jp: "ぷれぜんと", ro: "purezento" },
+            { jp: "よゆう", ro: "yoyuu" },
             { jp: "これ、それ。", ro: "kore,sore." },
             { jp: "ぷりん", ro: "purin" },
             { jp: "わらい", ro: "warai" },
@@ -146,7 +229,33 @@ const LESSONS = [
             { jp: "ふゆ", ro: "fuyu" },
             { jp: "なつ", ro: "natu" },
             { jp: "ふね", ro: "fune" },
-            { jp: "ろく", ro: "roku" }
+            { jp: "ろく", ro: "roku" },
+            { jp: "かわ", ro: "kawa" },
+            { jp: "ゆや", ro: "yuya" },
+            { jp: "より", ro: "yori" },
+            { jp: "りす", ro: "risu" },
+            { jp: "さる", ro: "saru" },
+            { jp: "とり", ro: "tori" },
+            { jp: "わに", ro: "wani" },
+            { jp: "りあ", ro: "ria" },
+            { jp: "あらい", ro: "arai" },
+            { jp: "わるい", ro: "warui" },
+            { jp: "ひろい", ro: "hiroi" },
+            { jp: "きいろい", ro: "kiiroi" },
+            { jp: "しろい", ro: "siroi" },
+            { jp: "くろい", ro: "kuroi" },
+            { jp: "かるい", ro: "karui" },
+            { jp: "はやい", ro: "hayai" },
+            { jp: "やすい", ro: "yasui" },
+            { jp: "ゆるい", ro: "yurui" },
+            { jp: "ふかい", ro: "hukai" },
+            { jp: "きれい", ro: "kirei" },
+            { jp: "いらすと", ro: "irasuto" },
+            { jp: "すぷーん", ro: "supu-n" },
+            { jp: "こっぷ", ro: "koppu" },
+            { jp: "らっぱ", ro: "rappa" },
+            { jp: "あっぷる", ro: "appuru" },
+            { jp: "よっと", ro: "yotto" }
         ]
     },
     {
@@ -172,47 +281,34 @@ const LESSONS = [
             { jp: "じゅんび", ro: "junbi" },
             { jp: "びでお", ro: "bideo" },
             { jp: "まんが", ro: "manga" },
-            { jp: "ばんごう", ro: "bangou" }
+            { jp: "ばんごう", ro: "bangou" },
+            { jp: "えんぴつ", ro: "enpitu" },
+            { jp: "かばん", ro: "kaban" },
+            { jp: "さいふ", ro: "saihu" },
+            { jp: "けいたいでんわ", ro: "keitaidenwa" },
+            { jp: "しんぶん", ro: "sinbun" },
+            { jp: "ざっし", ro: "zassi" },
+            { jp: "じてんしゃ", ro: "jitensya" },
+            { jp: "ひこうき", ro: "hikouki" },
+            { jp: "きょうしつ", ro: "kyousitu" },
+            { jp: "しょくどう", ro: "syokudou" },
+            { jp: "としょかん", ro: "tosyokan" },
+            { jp: "びじゅつかん", ro: "bijutukan" },
+            { jp: "どうぶつえん", ro: "doubutuen" },
+            { jp: "ゆうえんち", ro: "yuuenci" },
+            { jp: "がっこう", ro: "gakkou" },
+            { jp: "びょういん", ro: "byouin" },
+            { jp: "ぎんこう", ro: "ginkou" },
+            { jp: "ゆうびんきょく", ro: "yuubinkyoku" },
+            { jp: "でんき", ro: "denki" }
         ]
     },
     {
         id: 5,
-        title: "レッスン 5: 総合練習（日常会話）",
-        desc: "すべてのキーを使って、日常の挨拶や会話でよく使われるフレーズをタイピングします。<br>語彙は100種類の中からランダムに出題されます。",
+        title: "レッスン 5: 総合練習（すべてのジャンル）",
+        desc: "日常会話、ことわざ、IT、地理、文学のすべてのカテゴリ（全400語以上）から、すべての文章がランダムに出題されます。<br>大西配列のタッチタイピング完全マスターを目指しましょう！",
         keys: "すべてのキー",
-        category: "daily",
-        words: []
-    },
-    {
-        id: 6,
-        title: "レッスン 6: 総合練習（ことわざ・四字熟語）",
-        desc: "すべてのキーを使って、日本の有名なことわざや四字熟語をタイピングします。<br>言葉の意味を噛み締めながら打ってみましょう。",
-        keys: "すべてのキー",
-        category: "proverbs",
-        words: []
-    },
-    {
-        id: 7,
-        title: "レッスン 7: 総合練習（IT・ビジネス）",
-        desc: "すべてのキーを使って、パソコン用語やIT・プログラミング、ビジネスシーンで頻出するフレーズをタイピングします。",
-        keys: "すべてのキー",
-        category: "it_business",
-        words: []
-    },
-    {
-        id: 8,
-        title: "レッスン 8: 総合練習（都道府県・地理）",
-        desc: "すべてのキーを使って、日本全国47都道府県の名称や主要都市をタイピングします。",
-        keys: "すべてのキー",
-        category: "geography",
-        words: []
-    },
-    {
-        id: 9,
-        title: "レッスン 9: 総合練習（昔話・名作文学）",
-        desc: "すべてのキーを使って、「桃太郎」や「吾輩は猫である」、「走れメロス」などの有名な書き出しやフレーズをタイピングします。",
-        keys: "すべてのキー",
-        category: "literature",
+        category: "all",
         words: []
     }
 ];
@@ -346,6 +442,11 @@ let totalTime = 60;
 let timerInterval = null;
 let isPlaying = false;
 
+// 1文制限時間用の変数
+let timerMode = "total"; // "total" または "word-soyo" など
+let wordTimeLimit = 0;
+let wordTimeLeft = 0;
+
 // 複数パターン判定用の変数
 let inputBuffer = "";
 let romajiPaths = [];
@@ -376,6 +477,16 @@ const onishiKeyboard = document.getElementById('onishi-keyboard');
 
 const inputModeToggle = document.getElementById('input-mode-toggle');
 const timeSelect = document.getElementById('time-select');
+const modeSelect = document.getElementById('mode-select');
+
+// 1文制限時間UI
+const wordProgressContainer = document.getElementById('word-progress-container');
+const wordProgressBar = document.getElementById('word-progress-bar');
+
+// ランキングUI
+const newRecordBadge = document.getElementById('new-record-badge');
+const rankingModeName = document.getElementById('ranking-mode-name');
+const rankingList = document.getElementById('ranking-list');
 
 // --- 辞書データ保持用 ---
 let wordsData = null;
@@ -414,8 +525,17 @@ async function loadWordsData() {
         
         // 各レッスンに単語データを流し込む
         LESSONS.forEach(lesson => {
-            if (lesson.category && wordsData[lesson.category]) {
-                lesson.words = wordsData[lesson.category];
+            if (lesson.category) {
+                if (lesson.category === 'all') {
+                    lesson.words = [];
+                    Object.keys(wordsData).forEach(cat => {
+                        if (Array.isArray(wordsData[cat])) {
+                            lesson.words.push(...wordsData[cat]);
+                        }
+                    });
+                } else if (wordsData[lesson.category]) {
+                    lesson.words = wordsData[lesson.category];
+                }
             }
         });
     } catch (error) {
@@ -423,8 +543,17 @@ async function loadWordsData() {
         
         // フォールバックデータを適用
         LESSONS.forEach(lesson => {
-            if (lesson.category && FALLBACK_WORDS[lesson.category]) {
-                lesson.words = FALLBACK_WORDS[lesson.category];
+            if (lesson.category) {
+                if (lesson.category === 'all') {
+                    lesson.words = [];
+                    Object.keys(FALLBACK_WORDS).forEach(cat => {
+                        if (Array.isArray(FALLBACK_WORDS[cat])) {
+                            lesson.words.push(...FALLBACK_WORDS[cat]);
+                        }
+                    });
+                } else if (FALLBACK_WORDS[lesson.category]) {
+                    lesson.words = FALLBACK_WORDS[lesson.category];
+                }
             }
         });
     }
@@ -559,9 +688,20 @@ function startGame() {
     romajiPaths = [];
     displayRomaji = "";
 
+    // モード設定
+    timerMode = modeSelect.value;
+
     // 時間設定
     totalTime = parseInt(timeSelect.value);
     timeLeft = totalTime;
+
+    // 1文制限時間UIの表示/非表示
+    if (timerMode !== 'total') {
+        wordProgressContainer.style.display = 'block';
+        wordProgressBar.style.width = '100%';
+    } else {
+        wordProgressContainer.style.display = 'none';
+    }
 
     // 単語シャッフル & 生成
     targetWords = [...activeLesson.words];
@@ -571,9 +711,9 @@ function startGame() {
     updateStatusBar();
     setupNextWord();
 
-    // タイマースタート
+    // タイマースタート (100ms間隔)
     if (timerInterval) clearInterval(timerInterval);
-    timerInterval = setInterval(updateTimer, 1000);
+    timerInterval = setInterval(updateTimer, 100);
 }
 
 function stopGame() {
@@ -627,6 +767,82 @@ function finishGame() {
     document.getElementById('res-accuracy').textContent = accuracy + '%';
     document.getElementById('res-misses').textContent = incorrectTypes;
 
+    // --- 自己ベスト保存とランキング表示 ---
+    const recordId = 'rec_' + Date.now();
+    const record = {
+        id: recordId,
+        lessonId: activeLesson.id,
+        lessonTitle: activeLesson.title,
+        timerMode: timerMode,
+        score: score,
+        kpm: kpm,
+        accuracy: parseFloat(accuracy),
+        date: new Date().toLocaleString()
+    };
+
+    let records = JSON.parse(localStorage.getItem('onishi_typing_records')) || [];
+    
+    // 同一レッスン・同一モードの最高スコアを事前に計算
+    const previousModeRecords = records.filter(r => 
+        r.lessonId === activeLesson.id && 
+        r.timerMode === timerMode
+    );
+    const previousBest = previousModeRecords.length > 0 
+        ? Math.max(...previousModeRecords.map(r => r.score)) 
+        : 0;
+
+    // 新しいレコードを追加して保存
+    records.push(record);
+    try {
+        localStorage.setItem('onishi_typing_records', JSON.stringify(records));
+    } catch (e) {
+        console.error('Failed to save record to localStorage:', e);
+    }
+
+    // 自己ベスト更新判定 (過去の最高スコアを上回る、かつスコアが0より大きい)
+    const isNewBest = score > previousBest && score > 0;
+
+    if (isNewBest) {
+        newRecordBadge.style.display = 'inline-block';
+    } else {
+        newRecordBadge.style.display = 'none';
+    }
+
+    // ランキングの日本語モード名マッピング
+    const MODE_NAMES = {
+        'total': '全体タイマー',
+        'word-soyo': '微風（そよかぜ）',
+        'word-nagi': '凪（なぎ）',
+        'word-haya': '疾風（はやて）',
+        'word-reppu': '烈風（れっぷう）',
+        'word-raiko': '雷光（らいこう）'
+    };
+    rankingModeName.textContent = `${activeLesson.title} [${MODE_NAMES[timerMode] || timerMode}]`;
+
+    // 同一レッスン・モードの全記録を抽出し、スコア順にソートしてTOP 5を作成
+    const currentModeRecords = records.filter(r => 
+        r.lessonId === activeLesson.id && 
+        r.timerMode === timerMode
+    );
+    const top5 = currentModeRecords.sort((a, b) => b.score - a.score).slice(0, 5);
+    
+    rankingList.innerHTML = '';
+    top5.forEach((rec, idx) => {
+        const tr = document.createElement('tr');
+        if (rec.id === recordId) {
+            tr.className = 'current-play-row';
+        }
+        
+        tr.innerHTML = `
+            <td><strong>${idx + 1}位</strong></td>
+            <td>${rec.score.toLocaleString()}</td>
+            <td>${rec.kpm} KPM</td>
+            <td>${rec.accuracy}%</td>
+            <td>${rec.date}</td>
+        `;
+        rankingList.appendChild(tr);
+    });
+
     showScreen('result');
 }
 
@@ -647,6 +863,33 @@ function setupNextWord() {
     // デフォルトのローマ字（最初の候補）を選択
     displayRomaji = romajiPaths[0];
     inputBuffer = "";
+    
+    // 1文制限時間の動的計算
+    if (timerMode !== 'total') {
+        let timePerChar = 0.4;
+        let baseBuffer = 1.0;
+
+        if (timerMode === 'word-soyo') {
+            timePerChar = 0.8;
+            baseBuffer = 2.0;
+        } else if (timerMode === 'word-nagi') {
+            timePerChar = 0.6;
+            baseBuffer = 1.5;
+        } else if (timerMode === 'word-haya') {
+            timePerChar = 0.4;
+            baseBuffer = 1.0;
+        } else if (timerMode === 'word-reppu') {
+            timePerChar = 0.25;
+            baseBuffer = 0.7;
+        } else if (timerMode === 'word-raiko') {
+            timePerChar = 0.15;
+            baseBuffer = 0.4;
+        }
+
+        wordTimeLimit = (displayRomaji.length * timePerChar) + baseBuffer;
+        wordTimeLeft = wordTimeLimit;
+        wordProgressBar.style.width = '100%';
+    }
     
     // ローマ字を分割して span 化して描画
     renderRomajiSpans();
@@ -683,9 +926,10 @@ function updateStatusBar() {
         : 100;
     displayAccuracy.textContent = accuracy + '%';
 
-    // 残り時間の表示フォーマット
-    const min = String(Math.floor(timeLeft / 60)).padStart(2, '0');
-    const sec = String(timeLeft % 60).padStart(2, '0');
+    // 残り時間の表示フォーマット (切り上げ表示)
+    const displaySeconds = Math.ceil(timeLeft);
+    const min = String(Math.floor(displaySeconds / 60)).padStart(2, '0');
+    const sec = String(displaySeconds % 60).padStart(2, '0');
     displayTime.textContent = `${min}:${sec}`;
 
     // プログレスバー
@@ -694,7 +938,28 @@ function updateStatusBar() {
 }
 
 function updateTimer() {
-    timeLeft--;
+    // 100msごとに呼び出されるため、0.1秒ずつ減算
+    timeLeft = Math.max(0, timeLeft - 0.1);
+    
+    if (timerMode !== 'total') {
+        wordTimeLeft = Math.max(0, wordTimeLeft - 0.1);
+        
+        // 1文制限時間バーの更新
+        const wordPct = (wordTimeLeft / wordTimeLimit) * 100;
+        wordProgressBar.style.width = wordPct + '%';
+        
+        // 1文制限時間切れの場合の処理
+        if (wordTimeLeft <= 0) {
+            // スキップされた文字数をミスとしてカウントし、減点する
+            const unescapedLen = displayRomaji.length - inputBuffer.length;
+            incorrectTypes += Math.max(1, unescapedLen);
+            score = Math.max(0, score - 5); // 1文スキップのペナルティ
+
+            currentWordIndex++;
+            setupNextWord();
+        }
+    }
+    
     if (timeLeft <= 0) {
         timeLeft = 0;
         updateStatusBar();

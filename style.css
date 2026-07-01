@@ -892,3 +892,120 @@ a:hover {
         flex-direction: column;
     }
 }
+
+/* --- 1文制限時間タイマーバー --- */
+.word-progress-container {
+    width: 100%;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 3px;
+    margin-bottom: 18px;
+    overflow: hidden;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.word-progress-bar {
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, #ff007f, #ff5e3a); /* ネオンホットピンクからネオンオレンジへのグラデーション */
+    box-shadow: 0 0 10px rgba(255, 0, 127, 0.6);
+    border-radius: 3px;
+    transition: width 0.1s linear;
+}
+
+/* --- 自己ベストランキングテーブル --- */
+.result-ranking-section {
+    margin-top: 30px;
+    margin-bottom: 25px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 16px;
+    backdrop-filter: blur(10px);
+}
+
+.ranking-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 15px;
+    text-align: left;
+    letter-spacing: 0.5px;
+    border-left: 3px solid var(--neon-cyan);
+    padding-left: 10px;
+}
+
+.ranking-table-container {
+    overflow-x: auto;
+}
+
+.ranking-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.ranking-table th, 
+.ranking-table td {
+    padding: 10px 12px;
+    font-size: 13px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.ranking-table th {
+    color: var(--text-secondary);
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.ranking-table td {
+    color: var(--text-primary);
+    font-family: var(--font-outfit);
+}
+
+.ranking-table tr.current-play-row {
+    background: rgba(0, 240, 255, 0.06);
+    border-left: 3px solid var(--neon-cyan);
+}
+
+.ranking-table tr.current-play-row td {
+    color: var(--neon-cyan);
+    font-weight: bold;
+}
+
+.ranking-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* --- 新記録バッジ --- */
+.new-record-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #ffd700, #ff8c00); /* ゴールドからオレンジ */
+    color: #000;
+    font-weight: 800;
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    margin-top: 10px;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+    animation: pulse 1.5s infinite;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+    }
+}
