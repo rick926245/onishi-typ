@@ -409,10 +409,16 @@ function getRomajiPaths(hiragana) {
             candidates = ROMAJI_MAP[oneChar] || [oneChar];
             matchedLen = 1;
 
-            // 「ん」の特別な処理：次の文字があ行・な行・や行の場合、'n'を除外して'nn'のみにする
-            if (oneChar === 'ん' && i + 1 < hiragana.length) {
-                const nextChar = hiragana[i + 1];
-                if (/[あいうえおなにぬねのやゆよぁぃぅぇぉゃゅょ]/.test(nextChar)) {
+            // 「ん」の特別な処理：
+            // 1. 次の文字があ行・な行・や行の場合、'n'を除外して'nn'のみにする
+            // 2. 次の文字がない（文末・単語末の「ん」）場合も、'n'を除外して'nn'のみにする
+            if (oneChar === 'ん') {
+                if (i + 1 < hiragana.length) {
+                    const nextChar = hiragana[i + 1];
+                    if (/[あいうえおなにぬねのやゆよぁぃぅぇぉゃゅょ]/.test(nextChar)) {
+                        candidates = ['nn'];
+                    }
+                } else {
                     candidates = ['nn'];
                 }
             }
