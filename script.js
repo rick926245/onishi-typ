@@ -758,7 +758,10 @@ function finishGame() {
 
     // ランク判定
     let rank = 'C';
-    let rankName = '大西配列のビギナー';
+    const isQwerty = (layoutSelect ? layoutSelect.value : 'virtual-onishi') === 'qwerty';
+    let rankName = isQwerty ? 'タイピングのビギナー' : '大西配列 of ビギナー'; // '大西配列のビギナー'
+    // ※大西配列の日本語名と合わせるため、統一して '大西配列のビギナー' とします。
+    rankName = isQwerty ? 'タイピングのビギナー' : '大西配列のビギナー';
 
     // 1分換算の正規化スコアでランク判定
     const timeFactor = totalTime / 60;
@@ -766,13 +769,13 @@ function finishGame() {
     
     if (normalizedScore >= 2000 && accuracy >= 95) {
         rank = 'S';
-        rankName = '大西配列の神';
+        rankName = isQwerty ? 'タイピングの神' : '大西配列の神';
     } else if (normalizedScore >= 1200 && accuracy >= 92) {
         rank = 'A';
-        rankName = '大西配列のマスター';
+        rankName = isQwerty ? 'タイピングのマスター' : '大西配列のマスター';
     } else if (normalizedScore >= 600 && accuracy >= 88) {
         rank = 'B';
-        rankName = '大西配列の修業中';
+        rankName = isQwerty ? 'タイピングの修業中' : '大西配列の修業中';
     }
 
     // 結果画面UIの更新
