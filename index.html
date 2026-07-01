@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>大西配列タイピング練習 - Onishi Typing Pro</title>
+    <!-- Google Fonts の読み込み -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="stars-bg"></div>
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+
+    <div class="app-container">
+        <!-- ヘッダーエリア -->
+        <header class="app-header">
+            <div class="logo">
+                <span class="logo-accent">ONISHI</span> TYPING PRO
+            </div>
+            
+            <div class="header-controls">
+                <!-- 入力モード切替 -->
+                <div class="control-group">
+                    <label class="control-label">入力モード</label>
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="input-mode-toggle" checked>
+                        <label for="input-mode-toggle" class="toggle-slider">
+                            <span class="toggle-label-left">仮想大西</span>
+                            <span class="toggle-label-right">OS設定</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 制限時間 -->
+                <div class="control-group">
+                    <label for="time-select" class="control-label">時間</label>
+                    <select id="time-select" class="custom-select">
+                        <option value="60">1分</option>
+                        <option value="120">2分</option>
+                        <option value="180">3分</option>
+                        <option value="300">5分</option>
+                    </select>
+                </div>
+            </div>
+        </header>
+
+        <!-- メインコンテンツ -->
+        <main class="app-main">
+            <!-- 左サイドバー: レッスン選択 -->
+            <aside class="sidebar">
+                <h2 class="sidebar-title">LESSONS</h2>
+                <div class="lesson-list" id="lesson-list">
+                    <!-- JSでレッスンボタンを動的生成 -->
+                </div>
+            </aside>
+
+            <!-- 中央メインエリア -->
+            <section class="game-area">
+                <!-- 1. スタート前画面 -->
+                <div id="screen-start" class="game-screen active">
+                    <div class="glass-card start-card">
+                        <h1 class="lesson-title-display" id="start-lesson-title">レッスン 1: ホームポジション</h1>
+                        <p class="lesson-desc" id="start-lesson-desc">
+                            左手ホームポジション「E I A O」と右手ホームポジション「T N S H」を練習します。<br>
+                            手元を見ずに、画面のキーボードガイドを頼りにタイピングしてみましょう。
+                        </p>
+                        
+                        <div class="start-features">
+                            <div class="feature-item">
+                                <div class="feature-icon">⌨️</div>
+                                <h3>仮想大西モード搭載</h3>
+                                <p>普通のQWERTY配列キーボードのまま、画面の指示通りに打つだけで自動的に大西配列に変換されます。</p>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-icon">🙌</div>
+                                <h3>指ガイド表示</h3>
+                                <p>打つべきキーに対応する指が画面上でネオンに光り、タッチタイピング習得を導きます。</p>
+                            </div>
+                        </div>
+
+                        <button id="btn-start" class="btn btn-primary btn-large">練習をスタートする</button>
+                    </div>
+                </div>
+
+                <!-- 2. プレイ画面 -->
+                <div id="screen-play" class="game-screen">
+                    <!-- 進捗バー -->
+                    <div class="progress-container">
+                        <div class="progress-bar" id="timer-progress"></div>
+                    </div>
+
+                    <!-- ステータスバー -->
+                    <div class="status-bar">
+                        <div class="status-item">
+                            <span class="status-label">TIME</span>
+                            <span class="status-value font-outfit" id="display-time">01:00</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">SCORE</span>
+                            <span class="status-value font-outfit" id="display-score">0000</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">ACCURACY</span>
+                            <span class="status-value font-outfit" id="display-accuracy">100%</span>
+                        </div>
+                        <button id="btn-exit" class="btn btn-danger btn-small">終了する</button>
+                    </div>
+
+                    <!-- タイピングテキスト表示 -->
+                    <div class="glass-card typing-card">
+                        <div class="japanese-text" id="target-japanese">たいぴんぐ</div>
+                        <div class="romaji-container" id="target-romaji">
+                            <!-- JSで文字単位に分割して表示 -->
+                            <span class="char-current">t</span><span>a</span><span>i</span><span>p</span><span>i</span><span>n</span><span>g</span><span>u</span>
+                        </div>
+                    </div>
+
+                    <!-- キーボード表示 (大西配列) -->
+                    <div class="keyboard-container">
+                        <div class="keyboard" id="onishi-keyboard">
+                            <!-- JSで動的にキーを生成し、正しい配置で並べる -->
+                        </div>
+                    </div>
+
+                    <!-- 手のガイド (SVG) -->
+                    <div class="hand-guide-container">
+                        <svg class="hand-guide-svg" viewBox="0 0 800 220" xmlns="http://www.w3.org/2000/svg">
+                            <!-- 背景・基準線 -->
+                            <line x1="50" y1="200" x2="750" y2="200" stroke="rgba(255,255,255,0.1)" stroke-width="2" />
+                            
+                            <!-- 左手 -->
+                            <g id="hand-left" class="hand-group">
+                                <!-- 手のひらベース -->
+                                <path d="M 90 200 C 90 140, 110 120, 160 120 C 190 120, 210 140, 210 200 Z" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.15)" stroke-width="2" />
+                                <!-- 左親指 -->
+                                <path id="finger-l1" class="finger thumb" d="M 195 160 C 215 155, 230 140, 240 135 C 245 130, 250 140, 240 150 C 230 160, 210 175, 195 180 Z" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.2)" stroke-width="2" />
+                                <!-- 左人差し指 -->
+                                <path id="finger-l2" class="finger index-f" d="M 170 125 L 170 45 C 170 38, 182 38, 182 45 L 182 125 Z" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.2)" stroke-width="2" />
+                                <!-- 左中指 -->
+                                <path id="finger-l3" class="finger middle-f" d="M 143 120 L 143 30 C 143 23, 155 23, 155 30 L 155 120 Z" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.2)" stroke-width="2" />
+                                <!-- 左薬指 -->
+                                <path id="finger-l4" class="finger ring-f" d="M 117 122 L 117 38 C 117 31, 129 31, 129 38 L 129 122 Z" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.2)" stroke-width="2" />
+                                <!-- 左小指 -->
+                                <path id="finger-l5" class="finger pinky-f" d="M 92 135 L 92 60 C 92 53, 104 53, 104 60 L 104 135 Z" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.2)" stroke-width="2" />
+                            </g>
+                            
+                            <!-- 右手 -->
+                            <g id="hand-right" class="hand-group">
+                                <!-- 手のひらベース -->
+                                <path d="M 710 200 C 710 140, 690 120, 640 120 C 610 120, 590 140, 590 200 Z" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.15)" stroke-width="2" />
+                                <!-- 右親指 -->
+                                <path id="finger-r1" class="finger thumb" d="M 605 180 C 590 175, 570 160, 560 150 C 550 140, 555 130, 560 135 C 570 140, 585 155, 605 160 Z" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.2)" stroke-width="2" />
+                                <!-- 右人差し指 -->
+                                <path id="finger-r2" class="finger index-f" d="M 618 125 L 618 45 C 618 38, 630 38, 630 45 L 630 125 Z" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.2)" stroke-width="2" />
+                                <!-- 右中指 -->
+                                <path id="finger-r3" class="finger middle-f" d="M 645 120 L 645 30 C 645 23, 657 23, 657 30 L 657 120 Z" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.2)" stroke-width="2" />
+                                <!-- 右薬指 -->
+                                <path id="finger-r4" class="finger ring-f" d="M 671 122 L 671 38 C 671 31, 683 31, 683 38 L 683 122 Z" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.2)" stroke-width="2" />
+                                <!-- 右小指 -->
+                                <path id="finger-r5" class="finger pinky-f" d="M 696 135 L 696 60 C 696 53, 708 53, 708 60 L 708 135 Z" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.2)" stroke-width="2" />
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 3. 結果画面 -->
+                <div id="screen-result" class="game-screen">
+                    <div class="glass-card result-card">
+                        <div class="result-header">
+                            <div class="result-badge" id="result-rank-badge">B</div>
+                            <h1 class="result-title">練習結果</h1>
+                            <p class="result-subtitle" id="result-rank-name">大西配列のビギナー</p>
+                        </div>
+                        
+                        <div class="result-stats-grid">
+                            <div class="result-stat-box">
+                                <span class="stat-box-label">スコア</span>
+                                <span class="stat-box-value font-outfit accent-blue" id="res-score">1,240</span>
+                            </div>
+                            <div class="result-stat-box">
+                                <span class="stat-box-label">入力速度 (KPM)</span>
+                                <span class="stat-box-value font-outfit accent-purple" id="res-kpm">180</span>
+                            </div>
+                            <div class="result-stat-box">
+                                <span class="stat-box-label">正確率</span>
+                                <span class="stat-box-value font-outfit accent-cyan" id="res-accuracy">96.8%</span>
+                            </div>
+                            <div class="result-stat-box">
+                                <span class="stat-box-label">ミス回数</span>
+                                <span class="stat-box-value font-outfit accent-red" id="res-misses">5</span>
+                            </div>
+                        </div>
+
+                        <div class="result-actions">
+                            <button id="btn-retry" class="btn btn-secondary">もう一度挑戦</button>
+                            <button id="btn-next-lesson" class="btn btn-primary">次のレッスンへ</button>
+                            <button id="btn-go-top" class="btn btn-outline">トップへ戻る</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+        
+        <!-- フッター -->
+        <footer class="app-footer">
+            <p>※正しい入力姿勢を意識しましょう。大西配列考案者公式サイト: <a href="https://o24.works/layout/" target="_blank" rel="noopener">o24.works</a></p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
