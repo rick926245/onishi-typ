@@ -625,6 +625,21 @@ const newRecordBadge = document.getElementById('new-record-badge');
 const rankingModeName = document.getElementById('ranking-mode-name');
 const rankingList = document.getElementById('ranking-list');
 
+// 新しいゲーム状態変数 (コンボ、ミス、音量)
+let comboCount = 0;
+let maxCombo = 0;
+let totalCompletedKana = 0; // ひらがなベースコンボ累計
+let lastCombo = 0;          // 前回検知したひらがなベースコンボ
+let playMissedKeys = {};
+let soundEnabled = true;
+
+// 追加のDOM要素
+const comboBadge = document.getElementById('combo-badge');
+const resCombo = document.getElementById('res-combo');
+const resWeakKeys = document.getElementById('res-weak-keys');
+const btnSoundToggle = document.getElementById('btn-sound-toggle');
+const nextWordPreview = document.getElementById('next-word-preview');
+
 // --- 辞書データ保持用 ---
 let wordsData = null;
 
@@ -706,13 +721,21 @@ window.addEventListener('DOMContentLoaded', () => {
     });
 
     // イベントリスナー登録
-    btnStart.addEventListener('click', startGame);
-    btnExit.addEventListener('click', stopGame);
+    btnStart.addEventListener('click', () => {
+        btnStart.blur();
+        startGame();
+    });
+    btnExit.addEventListener('click', () => {
+        btnExit.blur();
+        stopGame();
+    });
     btnRetry.addEventListener('click', () => {
+        btnRetry.blur();
         selectLesson(activeLesson.id);
         startGame();
     });
     btnNextLesson.addEventListener('click', () => {
+        btnNextLesson.blur();
         const nextId = activeLesson.id + 1;
         if (nextId <= LESSONS.length) {
             selectLesson(nextId);
@@ -722,6 +745,7 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     });
     btnGoTop.addEventListener('click', () => {
+        btnGoTop.blur();
         showScreen('start');
     });
 
@@ -734,6 +758,15 @@ window.addEventListener('DOMContentLoaded', () => {
         layoutSelect.addEventListener('change', () => {
             updateActiveLessons();
             generateKeyboard();
+        });
+    }
+
+    // 音量トグルイベント
+    if (btnSoundToggle) {
+        btnSoundToggle.addEventListener('click', () => {
+            soundEnabled = !soundEnabled;
+            btnSoundToggle.textContent = soundEnabled ? "🔊 音: ON" : "🔇 音: OFF";
+            btnSoundToggle.blur();
         });
     }
 });
@@ -850,6 +883,17 @@ function startGame() {
     inputBuffer = "";
     romajiPaths = [];
     displayRomaji = "";
+    
+    // コンボ・ミスキー追跡の初期化
+    comboCount = 0;
+    maxCombo = 0;
+    totalCompletedKana = 0;
+    lastCombo = 0;
+    playMissedKeys = {};
+    if (comboBadge) {
+        comboBadge.style.opacity = '0';
+        comboBadge.textContent = '';
+    }
 
     // モード設定
     timerMode = modeSelect.value;
@@ -924,6 +968,14 @@ function finishGame() {
         rankName = isQwerty ? 'タイピングの修業中' : '大西配列の修業中';
     }
 
+    // 苦手キーの集計
+    const sortedWeak = Object.entries(playMissedKeys)
+        .filter(([_, count]) => count > 0)
+        .sort((a, b) => b[1] - a[1]);
+    const weakKeysStr = sortedWeak.length > 0
+        ? sortedWeak.slice(0, 3).map(([key, _]) => key.toUpperCase()).join(', ')
+        : 'なし (完璧！)';
+
     // 結果画面UIの更新
     document.getElementById('result-rank-badge').textContent = rank;
     document.getElementById('result-rank-name').textContent = rankName;
@@ -931,6 +983,16 @@ function finishGame() {
     document.getElementById('res-kpm').textContent = kpm;
     document.getElementById('res-accuracy').textContent = accuracy + '%';
     document.getElementById('res-misses').textContent = incorrectTypes;
+    if (resCombo) resCombo.textContent = maxCombo;
+    if (resWeakKeys) resWeakKeys.textContent = weakKeysStr;
+
+    // 苦手キー履歴の保存
+    const storageKey = isQwerty ? 'qwerty_weak_keys' : 'onishi_weak_keys';
+    let savedWeak = JSON.parse(localStorage.getItem(storageKey) || '{}');
+    sortedWeak.forEach(([key, count]) => {
+        savedWeak[key] = (savedWeak[key] || 0) + count;
+    });
+    localStorage.setItem(storageKey, JSON.stringify(savedWeak));
 
     // --- 自己ベスト保存とランキング表示 ---
     const recordId = 'rec_' + Date.now();
@@ -1068,6 +1130,21 @@ function setupNextWord() {
     // ローマ字を分割して span 化して描画
     renderRomajiSpans();
     updateHighlights();
+
+    // 次の単語予告の更新
+    if (nextWordPreview) {
+        const nextIndex = currentWordIndex + 1;
+        if (nextIndex < targetWords.length) {
+            const nextWord = targetWords[nextIndex];
+            const nextPaths = getRomajiPaths(nextWord.jp);
+            const nextRo = nextPaths.length > 0 ? nextPaths[0] : nextWord.ro;
+            nextWordPreview.innerHTML = `<span class="next-label">NEXT:</span> ${nextWord.jp} <span class="next-romaji">(${nextRo})</span>`;
+            nextWordPreview.style.opacity = '0.5';
+        } else {
+            nextWordPreview.innerHTML = `<span class="next-label">NEXT:</span> (これが最後の単語です)`;
+            nextWordPreview.style.opacity = '0.3';
+        }
+    }
 }
 
 // ローマ字表示の再描画
@@ -1145,7 +1222,19 @@ function updateTimer() {
 
 // --- 打鍵イベントハンドラ ---
 function handleKeyDown(e) {
-    if (!isPlaying) return;
+    if (!isPlaying) {
+        // プレイ中でないときのキーボードショートカット (スペースキーで開始・リトライ)
+        if (e.key === ' ' || e.key === 'Spacebar') {
+            e.preventDefault();
+            if (screenStart.classList.contains('active')) {
+                startGame();
+            } else if (screenResult.classList.contains('active')) {
+                selectLesson(activeLesson.id);
+                startGame();
+            }
+        }
+        return;
+    }
     
     // 特殊制御キーは無視
     if (e.ctrlKey || e.altKey || e.metaKey) return;
@@ -1193,9 +1282,26 @@ function handleKeyDown(e) {
     
     if (matchedPath) {
         // 正解
+        playKeySound();
         correctTypes++;
         score += 10;
         inputBuffer = testBuffer;
+        
+        // コンボ更新 (ひらがなベースの文字数)
+        const currentCombo = totalCompletedKana + getCompletedKanaCount(word.jp, inputBuffer);
+        if (currentCombo > lastCombo) {
+            comboCount = currentCombo;
+            maxCombo = Math.max(maxCombo, comboCount);
+            lastCombo = currentCombo;
+            
+            if (comboCount >= 3 && comboBadge) {
+                comboBadge.textContent = `${comboCount} COMBO!`;
+                comboBadge.style.opacity = '1';
+                comboBadge.classList.remove('combo-pop');
+                void comboBadge.offsetWidth; // リトリガー用
+                comboBadge.classList.add('combo-pop');
+            }
+        }
         
         // もし現在表示中の displayRomaji が testBuffer に一致しなくなったら、一致する他の候補に切り替える
         if (!displayRomaji.toLowerCase().startsWith(inputBuffer.toLowerCase())) {
@@ -1204,6 +1310,7 @@ function handleKeyDown(e) {
         
         // 単語クリア判定
         if (inputBuffer.length >= displayRomaji.length) {
+            totalCompletedKana += word.jp.length; // クリアした単語のひらがな文字数を累計に加算
             currentWordIndex++;
             renderRomajiSpans(); // 完了状態を描画
             setTimeout(setupNextWord, 50);
@@ -1213,8 +1320,24 @@ function handleKeyDown(e) {
         }
     } else {
         // ミス
+        playMissSound();
         incorrectTypes++;
         score = Math.max(0, score - 5); // 減点
+        
+        // コンボリセット (ひらがなベース、表示を完全に消去)
+        comboCount = 0;
+        totalCompletedKana = 0;
+        lastCombo = 0;
+        if (comboBadge) {
+            comboBadge.style.opacity = '0';
+            comboBadge.textContent = '';
+        }
+        
+        // 苦手キーの記録
+        const missKey = qwertyPhysicalKey;
+        if (missKey && /^[a-z]$/.test(missKey)) {
+            playMissedKeys[missKey] = (playMissedKeys[missKey] || 0) + 1;
+        }
         
         // 現在の入力箇所をエラー表示にする
         const spans = targetRomaji.querySelectorAll('span');
@@ -1339,4 +1462,162 @@ function shuffleArray(array) {
         const j = Math.floor(Math.random() * (i + 1));
         [array[i], array[j]] = [array[j], array[i]];
     }
+}
+
+// --- 打鍵効果音の Web Audio API 合成エンジン ---
+let audioCtx = null;
+
+function playKeySound() {
+    if (!soundEnabled) return;
+    
+    try {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+        
+        const now = audioCtx.currentTime;
+        
+        // 1. 低音の共振 (コトッという木製・静音赤軸感の再現)
+        const oscLow = audioCtx.createOscillator();
+        const gainLow = audioCtx.createGain();
+        oscLow.type = 'triangle';
+        oscLow.frequency.setValueAtTime(120, now);
+        oscLow.frequency.exponentialRampToValueAtTime(80, now + 0.08);
+        
+        gainLow.gain.setValueAtTime(0.18, now);
+        gainLow.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+        
+        oscLow.connect(gainLow);
+        gainLow.connect(audioCtx.destination);
+        
+        // 2. 高音のクリック (カチャッというスイッチ接点の再現)
+        const oscHigh = audioCtx.createOscillator();
+        const gainHigh = audioCtx.createGain();
+        oscHigh.type = 'sine';
+        oscHigh.frequency.setValueAtTime(1400, now);
+        oscHigh.frequency.exponentialRampToValueAtTime(600, now + 0.02);
+        
+        gainHigh.gain.setValueAtTime(0.04, now);
+        gainHigh.gain.exponentialRampToValueAtTime(0.001, now + 0.02);
+        
+        oscHigh.connect(gainHigh);
+        gainHigh.connect(audioCtx.destination);
+        
+        // 再生開始と停止
+        oscLow.start(now);
+        oscLow.stop(now + 0.08);
+        oscHigh.start(now);
+        oscHigh.stop(now + 0.02);
+        
+    } catch (err) {
+        console.error("Audio playback error:", err);
+    }
+}
+
+function playMissSound() {
+    if (!soundEnabled) return;
+    
+    try {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+        
+        const now = audioCtx.currentTime;
+        
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(110, now); // 低いブザー音
+        
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+        
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        
+        osc.start(now);
+        osc.stop(now + 0.15);
+        
+    } catch (err) {
+        console.error("Audio playback error:", err);
+    }
+}
+
+// 入力済みローマ字バッファから、入力完了しているひらがな文字数を算出
+function getCompletedKanaCount(hiragana, typedRomaji) {
+    let tempRomaji = typedRomaji.toLowerCase();
+    let completedCount = 0;
+    let i = 0;
+    
+    while (i < hiragana.length && tempRomaji.length > 0) {
+        let matchedLen = 0;
+        
+        // 拗音などの2文字判定（「しゃ」「きょ」など）
+        if (i + 1 < hiragana.length) {
+            const twoChars = hiragana.substr(i, 2);
+            const candidates = ROMAJI_MAP[twoChars];
+            if (candidates) {
+                const found = candidates.find(c => tempRomaji.startsWith(c));
+                if (found) {
+                    matchedLen = found.length;
+                    tempRomaji = tempRomaji.slice(matchedLen);
+                    completedCount += 2;
+                    i += 2;
+                    continue;
+                }
+            }
+        }
+        
+        // 促音「っ」の特別な処理
+        if (hiragana[i] === 'っ') {
+            if (i + 1 < hiragana.length) {
+                const nextChar = hiragana[i + 1];
+                const nextCandidates = ROMAJI_MAP[nextChar];
+                if (nextCandidates) {
+                    const leadingConsonants = nextCandidates.map(c => c[0]).filter(c => c !== 'a' && c !== 'i' && c !== 'u' && c !== 'e' && c !== 'o');
+                    const found = leadingConsonants.find(c => tempRomaji.startsWith(c));
+                    if (found) {
+                        tempRomaji = tempRomaji.slice(1);
+                        completedCount += 1;
+                        i += 1;
+                        continue;
+                    }
+                }
+            }
+        }
+        
+        // 1文字判定
+        const oneChar = hiragana[i];
+        let candidates = ROMAJI_MAP[oneChar] || [oneChar];
+        
+        if (oneChar === 'ん') {
+            if (i + 1 < hiragana.length) {
+                const nextChar = hiragana[i + 1];
+                if (/[あいうえおなにぬねのやゆよぁぃぅぇぉゃゅょ]/.test(nextChar)) {
+                    candidates = ['nn'];
+                }
+            } else {
+                candidates = ['nn'];
+            }
+        }
+        
+        const found = candidates.find(c => tempRomaji.startsWith(c));
+        if (found) {
+            matchedLen = found.length;
+            tempRomaji = tempRomaji.slice(matchedLen);
+            completedCount += 1;
+            i += 1;
+        } else {
+            break;
+        }
+    }
+    return completedCount;
 }

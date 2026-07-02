@@ -57,6 +57,10 @@
                         <option value="300">5分</option>
                     </select>
                 </div>
+                <!-- 音量コントロール -->
+                <div class="control-group">
+                    <button id="btn-sound-toggle" class="btn btn-secondary btn-small" title="打鍵効果音のON/OFF">🔊 音: ON</button>
+                </div>
             </div>
         </header>
 
@@ -94,7 +98,7 @@
                             </div>
                         </div>
 
-                        <button id="btn-start" class="btn btn-primary btn-large">練習をスタートする</button>
+                        <button id="btn-start" class="btn btn-primary btn-large">練習をスタートする (Space)</button>
                     </div>
                 </div>
 
@@ -128,11 +132,15 @@
                         <div class="word-progress-container" id="word-progress-container" style="display: none;">
                             <div class="word-progress-bar" id="word-progress-bar"></div>
                         </div>
+                        <!-- コンボ表示用バッジ -->
+                        <div class="combo-badge" id="combo-badge" style="opacity: 0; transform: scale(0.8);">0 COMBO!</div>
                         <div class="japanese-text" id="target-japanese">たいぴんぐ</div>
                         <div class="romaji-container" id="target-romaji">
                             <!-- JSで文字単位に分割して表示 -->
                             <span class="char-current">t</span><span>a</span><span>i</span><span>p</span><span>i</span><span>n</span><span>g</span><span>u</span>
                         </div>
+                        <!-- 次の単語の先行表示予告エリア -->
+                        <div class="next-word-preview" id="next-word-preview">NEXT: -</div>
                     </div>
 
                     <!-- キーボード表示 (大西配列) -->
@@ -186,57 +194,72 @@
                 <!-- 3. 結果画面 -->
                 <div id="screen-result" class="game-screen">
                     <div class="glass-card result-card">
-                        <div class="result-header">
-                            <div class="result-badge" id="result-rank-badge">B</div>
-                            <h1 class="result-title">練習結果</h1>
-                            <p class="result-subtitle" id="result-rank-name">大西配列のビギナー</p>
-                            <div class="new-record-badge" id="new-record-badge" style="display: none;">NEW RECORD!</div>
-                        </div>
-                        
-                        <div class="result-stats-grid">
-                            <div class="result-stat-box">
-                                <span class="stat-box-label">スコア</span>
-                                <span class="stat-box-value font-outfit accent-blue" id="res-score">1,240</span>
+                        <div class="result-layout-wrapper">
+                            <!-- 左カラム: スタッツとアクション -->
+                            <div class="result-left-col">
+                                <div class="result-header">
+                                    <div class="result-badge" id="result-rank-badge">B</div>
+                                    <h1 class="result-title">練習結果</h1>
+                                    <p class="result-subtitle" id="result-rank-name">大西配列のビギナー</p>
+                                    <div class="new-record-badge" id="new-record-badge" style="display: none;">NEW RECORD!</div>
+                                </div>
+                                
+                                <div class="result-stats-grid">
+                                    <div class="result-stat-box">
+                                        <span class="stat-box-label">スコア</span>
+                                        <span class="stat-box-value font-outfit accent-blue" id="res-score">1,240</span>
+                                    </div>
+                                    <div class="result-stat-box">
+                                        <span class="stat-box-label">入力速度 (KPM)</span>
+                                        <span class="stat-box-value font-outfit accent-purple" id="res-kpm">180</span>
+                                    </div>
+                                    <div class="result-stat-box">
+                                        <span class="stat-box-label">正確率</span>
+                                        <span class="stat-box-value font-outfit accent-cyan" id="res-accuracy">96.8%</span>
+                                    </div>
+                                    <div class="result-stat-box">
+                                        <span class="stat-box-label">ミス回数</span>
+                                        <span class="stat-box-value font-outfit accent-red" id="res-misses">5</span>
+                                    </div>
+                                    <div class="result-stat-box">
+                                        <span class="stat-box-label">最大コンボ</span>
+                                        <span class="stat-box-value font-outfit accent-green" id="res-combo">0</span>
+                                    </div>
+                                    <div class="result-stat-box">
+                                        <span class="stat-box-label">主な苦手キー</span>
+                                        <span class="stat-box-value font-outfit accent-orange" id="res-weak-keys">-</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="result-actions">
+                                    <button id="btn-retry" class="btn btn-secondary">もう一度挑戦 (Space)</button>
+                                    <button id="btn-next-lesson" class="btn btn-primary">次のレッスンへ</button>
+                                    <button id="btn-go-top" class="btn btn-outline">トップへ戻る</button>
+                                </div>
                             </div>
-                            <div class="result-stat-box">
-                                <span class="stat-box-label">入力速度 (KPM)</span>
-                                <span class="stat-box-value font-outfit accent-purple" id="res-kpm">180</span>
-                            </div>
-                            <div class="result-stat-box">
-                                <span class="stat-box-label">正確率</span>
-                                <span class="stat-box-value font-outfit accent-cyan" id="res-accuracy">96.8%</span>
-                            </div>
-                            <div class="result-stat-box">
-                                <span class="stat-box-label">ミス回数</span>
-                                <span class="stat-box-value font-outfit accent-red" id="res-misses">5</span>
-                            </div>
-                        </div>
 
-                        <!-- 自己ベストランキング -->
-                        <div class="result-ranking-section">
-                            <h3 class="ranking-title">🏆 <span id="ranking-mode-name">このモード</span> の自己ベスト TOP 5</h3>
-                            <div class="ranking-table-container">
-                                <table class="ranking-table">
-                                    <thead>
-                                        <tr>
-                                            <th>順位</th>
-                                            <th>スコア</th>
-                                            <th>速度 (KPM)</th>
-                                            <th>正確率</th>
-                                            <th>プレイ日時</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="ranking-list">
-                                        <!-- JSで動的に追加されます -->
-                                    </tbody>
-                                </table>
+                            <!-- 右カラム: 自己ベストランキング -->
+                            <div class="result-right-col">
+                                <div class="result-ranking-section">
+                                    <h3 class="ranking-title">🏆 <span id="ranking-mode-name">このモード</span> の自己ベスト TOP 5</h3>
+                                    <div class="ranking-table-container">
+                                        <table class="ranking-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>順位</th>
+                                                    <th>スコア</th>
+                                                    <th>速度 (KPM)</th>
+                                                    <th>正確率</th>
+                                                    <th>プレイ日時</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="ranking-list">
+                                                <!-- JSで動的に追加されます -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-
-                        <div class="result-actions">
-                            <button id="btn-retry" class="btn btn-secondary">もう一度挑戦</button>
-                            <button id="btn-next-lesson" class="btn btn-primary">次のレッスンへ</button>
-                            <button id="btn-go-top" class="btn btn-outline">トップへ戻る</button>
                         </div>
                     </div>
                 </div>
